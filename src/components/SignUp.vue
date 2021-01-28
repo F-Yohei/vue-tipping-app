@@ -25,30 +25,30 @@
 </template>
 
 <script>
-import axios from '../axios-for-auth.js';
+import firebase from "firebase";
 
 export default {
   data() {
     return {
-      username: '',
-      email: '',
-      password: ''
+      username: "",
+      email: "",
+      password: ""
     };
   },
   methods: {
     register() {
-      axios
-        .post('/accounts:signUp?key=MyKey', {
-          email: this.email,
-          password: this.password,
-          returnSecureToken: true
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(this.email, this.password)
+        .then(result => {
+          result.user.updateProfile({
+            displayName: this.username
+          });
+          this.$router.push("/home");
         })
-        .then(response => {
-          console.log(response);
+        .catch(error => {
+          alert(error.message);
         });
-      this.username = '';
-      this.email = '';
-      this.password = '';
     }
   }
 };
