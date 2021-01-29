@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="a">
+    <div class="login-message-area">
       <div>
         <span>aaaaさんようこそ！！</span>
       </div>
@@ -55,14 +55,14 @@ export default {
 </script>
 
 <style scoped>
-.a {
+.login-message-area {
   width: 42%;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
 }
 
-.a > div > button {
+.login-message-area > div > button {
   margin-left: 10px;
   padding: 5px;
   color: #fff;
