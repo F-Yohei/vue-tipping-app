@@ -5,16 +5,16 @@
       <ul>
         <li class="email">
           <label for="email">メールアドレス</label>
-          <input type="email" id="email" placeholder="E-mail" />
+          <input type="email" id="email" placeholder="E-mail" v-model="email"/>
         </li>
         <li class="password">
           <label for="password">パスワード</label>
-          <input type="password" id="password" placeholder="PassWord" />
+          <input type="password" id="password" placeholder="PassWord" v-model="password"/>
         </li>
       </ul>
     </form>
 
-    <button>ログイン</button>
+    <button @click="userLogin">ログイン</button>
     <br />
     <router-link to="/signup" tag="a">新規登録はこちらから</router-link>
 
@@ -22,6 +22,29 @@
 </template>
 
 <script>
+  import firebase from 'firebase';
+
+  export default {
+    data() {
+      return {
+        email: '',
+        password: ''
+      }
+    },
+    methods: {
+      userLogin() {
+        firebase
+        .auth()
+        .signInWithEmailAndPassword(this.email, this.password)
+        .then(() => {
+          this.$router.push('/home');
+        })
+        .catch(error => {
+          alert(error.message);
+        })
+      }
+    }
+  }
 </script>
 
 

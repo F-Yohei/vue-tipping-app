@@ -6,9 +6,9 @@ import Home from './components/Home';
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        { path: "/", component: Login },
-        { path: "/signup", component: SignUp },
-        { path: "/home", component: Home },
+        { path: '/', component: Login },
+        { path: '/signup', component: SignUp },
+        { path: '/home', component: Home },
     ],
 });
 

@@ -25,14 +25,14 @@
 </template>
 
 <script>
-import firebase from "firebase";
+import firebase from 'firebase';
 
 export default {
   data() {
     return {
-      username: "",
-      email: "",
-      password: ""
+      username: '',
+      email: '',
+      password: ''
     };
   },
   methods: {
@@ -44,7 +44,7 @@ export default {
           result.user.updateProfile({
             displayName: this.username
           });
-          this.$router.push("/home");
+          this.$router.push('/home');
         })
         .catch(error => {
           alert(error.message);
