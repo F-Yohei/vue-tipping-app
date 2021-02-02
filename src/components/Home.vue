@@ -2,7 +2,7 @@
   <div>
     <div class="login-message-area">
       <div>
-        <span>aaaaさんようこそ！！</span>
+        <span>{{ userName }}さんようこそ！！</span>
       </div>
 
       <div>
@@ -44,13 +44,21 @@
 </template>
 
 <script>
+import firebase from 'firebase';
 
 export default {
-    data() {
-        return {
-
-        }
-    }
+  data() {
+    return {
+      userName: ''
+    };
+  },
+  mounted() {
+    firebase.auth().onAuthStateChanged(user => {
+      setTimeout(() => {
+        this.userName = user.displayName;
+      },1000)
+    });
+  }
 };
 </script>
 
