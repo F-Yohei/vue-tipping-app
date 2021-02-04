@@ -49,16 +49,17 @@ import firebase from 'firebase';
 export default {
   data() {
     return {
-      userName: ''
+      userName: this.$store.state.user.displayName
     };
   },
-  mounted() {
-    firebase.auth().onAuthStateChanged(user => {
-      setTimeout(() => {
-        this.userName = user.displayName;
-      },1000)
-    });
-  }
+  //リロードしてもユーザー名が消えないようにする処理
+  created () {
+  firebase.auth().onAuthStateChanged((user)=> {
+    if (user) {
+      this.userName = user.displayName
+    }
+  });
+},
 };
 </script>
 

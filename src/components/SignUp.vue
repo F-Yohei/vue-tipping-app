@@ -43,8 +43,12 @@ export default {
         .then(result => {
           result.user.updateProfile({
             displayName: this.username
-          });
-          this.$router.push('/home');
+           });
+           //ユーザー名をFirebaseへ格納した後、非同期処理でstoreへ渡し、ログイン後画面へ遷移する
+           setTimeout(() => {
+            this.$store.commit('updataUser', result.user)
+            this.$router.push('/home');
+           }, 1000)
         })
         .catch(error => {
           alert(error.message);
