@@ -8,11 +8,16 @@ const store = createStore({
         }
     },
     getters: {
-        user: state => state.user
+        getUserName: state => state.user.displayName
     },
     mutations: {
         updataUser(state, userInformation) {
             state.user = userInformation;
+        }
+    },
+    actions: {
+        updataUser(context, userInfomation) {
+            context.commit('updataUser', userInfomation)
         }
     }
 });

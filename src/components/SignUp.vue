@@ -25,34 +25,32 @@
 </template>
 
 <script>
-import firebase from 'firebase';
+import firebase from "firebase";
 
 export default {
   data() {
     return {
-      username: '',
-      email: '',
-      password: ''
+      username: "",
+      email: "",
+      password: ""
     };
   },
   methods: {
-    register() {
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(this.email, this.password)
-        .then(result => {
-          result.user.updateProfile({
-            displayName: this.username
-           });
-           //ユーザー名をFirebaseへ格納した後、非同期処理でstoreへ渡し、ログイン後画面へ遷移する
-           setTimeout(() => {
-            this.$store.commit('updataUser', result.user)
-            this.$router.push('/home');
-           }, 1000)
-        })
-        .catch(error => {
-          alert(error.message);
+    async register() {
+      try {
+        await firebase
+          .auth()
+          .createUserWithEmailAndPassword(this.email, this.password);
+        const user = firebase.auth().currentUser;
+        await user.updateProfile({
+          displayName: this.username
         });
+        //ユーザー名をFirebaseへ格納した後、非同期処理でstoreへ渡し、ログイン後画面へ遷移する
+        this.$store.dispatch('updataUser', user);
+        this.$router.push('/home');
+      } catch (e) {
+        alert(e.message);
+      }
     }
   }
 };

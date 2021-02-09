@@ -45,14 +45,16 @@
 
 <script>
 import firebase from 'firebase';
+import { mapGetters } from 'vuex'
 
 export default {
   data() {
     return {
-      userName: this.$store.state.user.displayName
+      userName: ''
     };
   },
-  //リロードしてもユーザー名が消えないようにする処理
+  computed: mapGetters(['getUserName']),
+  // リロードしてもユーザー名が消えないようにする処理
   created () {
   firebase.auth().onAuthStateChanged((user)=> {
     if (user) {
@@ -60,6 +62,9 @@ export default {
     }
   });
 },
+  mounted() {
+    this.userName = this.getUserName
+  }
 };
 </script>
 
