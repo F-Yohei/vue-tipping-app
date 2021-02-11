@@ -25,14 +25,14 @@
 </template>
 
 <script>
-import firebase from "firebase";
+import firebase from 'firebase';
 
 export default {
   data() {
     return {
-      username: "",
-      email: "",
-      password: ""
+      username: '',
+      email: '',
+      password: ''
     };
   },
   methods: {

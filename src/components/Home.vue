@@ -7,7 +7,7 @@
 
       <div>
         <span>残高 : 1000</span>
-        <button>ログアウト</button>
+        <button @click="logOut">ログアウト</button>
       </div>
     </div>
 
@@ -44,26 +44,40 @@
 </template>
 
 <script>
-import firebase from 'firebase';
-import { mapGetters } from 'vuex'
+import firebase from "firebase";
+import { mapGetters } from "vuex";
 
 export default {
   data() {
     return {
-      userName: ''
+      userName: ""
     };
   },
-  computed: mapGetters(['getUserName']),
+  computed: mapGetters(["getUserName"]),
   // リロードしてもユーザー名が消えないようにする処理
-  created () {
-  firebase.auth().onAuthStateChanged((user)=> {
-    if (user) {
-      this.userName = user.displayName
-    }
-  });
-},
+  created() {
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        this.userName = user.displayName;
+      }
+    });
+  },
   mounted() {
-    this.userName = this.getUserName
+    this.userName = this.getUserName;
+  },
+  methods: {
+    logOut() {
+        firebase
+          .auth()
+          .signOut()
+          .then(() => {
+            this.$router.push('/')
+            console.log("ログアウトしました");
+          })
+          .catch(error => {
+            alert(error.message);
+          });
+    }
   }
 };
 </script>

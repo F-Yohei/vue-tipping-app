@@ -8,7 +8,7 @@ const store = createStore({
         }
     },
     getters: {
-        getUserName: state => state.user.displayName
+        getUserName: state => state.user
     },
     mutations: {
         updataUser(state, userInformation) {
