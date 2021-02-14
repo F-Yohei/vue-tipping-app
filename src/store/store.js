@@ -36,7 +36,7 @@ const store = createStore({
         const user = firebase.auth().currentUser;
         await user.updateProfile({
           displayName: userInfomation.username,
-        });う
+        });
         commit('setUserName', user);
       } catch (e) {
         alert(e.message);
