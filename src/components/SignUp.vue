@@ -18,39 +18,26 @@
       </ul>
     </form>
 
-    <button @click="register">新規登録</button>
+    <button @click="signUp">新規登録</button>
     <br />
     <router-link to="/" tag="a">ログインはこちらから</router-link>
   </div>
 </template>
 
 <script>
-import firebase from 'firebase';
-
 export default {
   data() {
     return {
-      username: '',
-      email: '',
-      password: ''
+        username: '',
+        email: '',
+        password: ''
     };
   },
   methods: {
-    async register() {
-      try {
-        await firebase
-          .auth()
-          .createUserWithEmailAndPassword(this.email, this.password);
-        const user = firebase.auth().currentUser;
-        await user.updateProfile({
-          displayName: this.username
-        });
-        //ユーザー名をFirebaseへ格納した後、非同期処理でstoreへ渡し、ログイン後画面へ遷移する
-        this.$store.dispatch('updataUser', user);
-        this.$router.push('/home');
-      } catch (e) {
-        alert(e.message);
-      }
+    async signUp() {
+      await this.$store.dispatch('signUp', { username:this.username, email:this.email, password:this.password })
+      this.$router.push('/home');
+
     }
   }
 };

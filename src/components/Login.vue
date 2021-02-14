@@ -22,8 +22,6 @@
 </template>
 
 <script>
-  import firebase from 'firebase';
-
   export default {
     data() {
       return {
@@ -32,16 +30,9 @@
       }
     },
     methods: {
-      userLogin() {
-        firebase
-        .auth()
-        .signInWithEmailAndPassword(this.email, this.password)
-        .then(() => {
-          this.$router.push('/home');
-        })
-        .catch(error => {
-          alert(error.message);
-        })
+      async userLogin() {
+        await this.$store.dispatch('login', { email:this.email, password:this.password })
+        this.$router.push('/home');
       }
     }
   }

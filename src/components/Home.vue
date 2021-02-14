@@ -2,7 +2,7 @@
   <div>
     <div class="login-message-area">
       <div>
-        <span>{{ userName }}さんようこそ！！</span>
+        <span>{{ updateUserName }}さんようこそ！！</span>
       </div>
 
       <div>
@@ -44,39 +44,25 @@
 </template>
 
 <script>
-import firebase from "firebase";
-import { mapGetters } from "vuex";
-
 export default {
   data() {
     return {
-      userName: ""
+
     };
   },
-  computed: mapGetters(["getUserName"]),
+  computed: {
+    updateUserName() {
+      return this.$store.getters.updateUserName
+    }
+  },
   // リロードしてもユーザー名が消えないようにする処理
   created() {
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        this.userName = user.displayName;
-      }
-    });
-  },
-  mounted() {
-    this.userName = this.getUserName;
+    this.$store.dispatch('updateUserName');
   },
   methods: {
-    logOut() {
-        firebase
-          .auth()
-          .signOut()
-          .then(() => {
-            this.$router.push('/')
-            console.log("ログアウトしました");
-          })
-          .catch(error => {
-            alert(error.message);
-          });
+    async logOut() {
+        await this.$store.dispatch('logOut');
+        this.$router.push('/');
     }
   }
 };
