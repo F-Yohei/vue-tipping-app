@@ -17,22 +17,8 @@
       <h4>ユーザ名</h4>
 
       <ul class="user-list">
-        <li>
-          <span>TEST</span>
-          <form>
-            <button type="button" @click="openModal">walletを見る</button>
-            <button type="button">送る</button>
-          </form>
-        </li>
-        <li>
-          <span>TEST</span>
-          <form>
-            <button type="button" @click="openModal">walletを見る</button>
-            <button type="button">送る</button>
-          </form>
-        </li>
-        <li>
-          <span>TEST</span>
+        <li v-for="user in users" :key="user.userName">
+          <span>{{ user.userName }}</span>
           <form>
             <button type="button" @click="openModal">walletを見る</button>
             <button type="button">送る</button>
@@ -44,7 +30,7 @@
     <div class="overlay" v-show="showContent" @click="closeModal">
       <transition name="modal">
         <div v-show="showContent" class="content">
-          <p>○○さんの残高</p>
+          <p>{{ users[2].userName }}さんの残高</p>
           <p>5,000円</p>
           <p>
             <button class="close-button" @click="closeModal">Close</button>
@@ -63,6 +49,7 @@
         </p>
       </div>
     </div>
+    <button type="button" @click="test">テスト</button>
   </div>
 </template>
 
@@ -70,8 +57,9 @@
 export default {
   data() {
     return {
-      showContent: true,
-      showContent2: true
+      users:this.$store.state.users,
+      showContent: false,
+      showContent2: false
     };
   },
   computed: {
@@ -94,6 +82,9 @@ export default {
     },
     closeModal() {
       this.showContent = false;
+    },
+    test() {
+      console.log(this.users);
     }
   }
 };

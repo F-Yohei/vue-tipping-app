@@ -4,11 +4,16 @@ import firebase from 'firebase';
 const store = createStore({
   state() {
     return {
+      users:[
+        {userName: 'test1', wallet: 500},
+        {userName: 'test2', wallet: 1000},
+        {userName: 'test3', wallet: 1500},
+        {userName: 'test4', wallet: 2000},
+      ],
       userName: '',
       updateUserName: '',
       userLoginInfomation: '',
       errorMessage: ''
-
     };
   },
   getters: {
