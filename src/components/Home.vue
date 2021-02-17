@@ -17,21 +17,21 @@
       <h4>ユーザ名</h4>
 
       <ul class="user-list">
-        <li v-for="user in users" :key="user.userName">
+        <li v-for="user in users" :key="user.id">
           <span>{{ user.userName }}</span>
           <form>
-            <button type="button" @click="openModal">walletを見る</button>
+            <button type="button" @click="selectUser(user)">Wallerを見る</button>
             <button type="button">送る</button>
           </form>
         </li>
       </ul>
     </div>
 
-    <div class="overlay" v-show="showContent" @click="closeModal">
+    <div class="overlay" v-show="showModalWallet" @click="closeModal">
       <transition name="modal">
-        <div v-show="showContent" class="content">
-          <p>{{ users[2].userName }}さんの残高</p>
-          <p>5,000円</p>
+        <div v-show="showModalWallet" class="content">
+          <p>{{ selectedUser.userName }}さんの残高</p>
+          <p>{{ selectedUser.wallet }}円</p>
           <p>
             <button class="close-button" @click="closeModal">Close</button>
           </p>
@@ -39,17 +39,16 @@
       </transition>
     </div>
 
-    <div class="overlay" v-show="showContent2" @click="closeModal">
+    <div class="overlay" v-if="showModal">
       <div class="content">
         <p>あなたの残高：500</p>
         <p>送る金額</p>
         <input type="text" class />
         <p>
-          <button class="close-button" @click="closeModal">Close</button>
+          <button class="close-button">Close</button>
         </p>
       </div>
     </div>
-    <button type="button" @click="test">テスト</button>
   </div>
 </template>
 
@@ -57,34 +56,34 @@
 export default {
   data() {
     return {
-      users:this.$store.state.users,
-      showContent: false,
-      showContent2: false
+      selectedUser: '',
+      showModalWallet: false
     };
   },
   computed: {
     updateUserName() {
       return this.$store.getters.updateUserName;
+    },
+    users() {
+      return this.$store.getters.getUser;
     }
   },
   // リロードしてもユーザー名が消えないようにする処理
   created() {
-    this.$store.dispatch("updateUserName");
+    this.$store.dispatch('updateUserName');
   },
   methods: {
     async logOut() {
-      await this.$store.dispatch("logOut");
-      this.$router.push("/");
+      await this.$store.dispatch('logOut');
+      this.$router.push('/');
     },
-    openModal() {
-      this.showContent = true;
-      console.log("クリックされました");
+    selectUser(user) {
+      this.selectedUser = user;
+      this.showModalWallet = true;
+      console.log(this.selectedUser);
     },
     closeModal() {
-      this.showContent = false;
-    },
-    test() {
-      console.log(this.users);
+      this.showModalWallet = false;
     }
   }
 };
@@ -154,8 +153,8 @@ export default {
   width: 20%;
   padding: 1em;
   background-color: #fff;
-  position:absolute;
-  top:220px;
+  position: absolute;
+  top: 220px;
 }
 
 .close-button {
@@ -170,7 +169,7 @@ export default {
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
-  top:200px;
+  top: 200px;
 }
 
 .modal-enter-active,
@@ -180,11 +179,11 @@ export default {
 
 .modal-enter-to {
   opacity: 1;
-  top:220px;
+  top: 220px;
 }
 
 .modal-leave-from {
   opacity: 1;
-  top:220px;
+  top: 220px;
 }
 </style>

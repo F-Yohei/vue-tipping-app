@@ -5,10 +5,10 @@ const store = createStore({
   state() {
     return {
       users:[
-        {userName: 'test1', wallet: 500},
-        {userName: 'test2', wallet: 1000},
-        {userName: 'test3', wallet: 1500},
-        {userName: 'test4', wallet: 2000},
+        {id: 0, userName: 'test1', wallet: 500},
+        {id: 1, userName: 'test2', wallet: 1000},
+        {id: 2, userName: 'test3', wallet: 1500},
+        {id: 3, userName: 'test4', wallet: 2000},
       ],
       userName: '',
       updateUserName: '',
@@ -17,8 +17,9 @@ const store = createStore({
     };
   },
   getters: {
-    getUserName: (state) => state.userName,
-    updateUserName: (state) => state.updateUserName,
+    getUserName: state => state.userName,
+    updateUserName: state => state.updateUserName,
+    getUser: state => state.users
   },
   mutations: {
     setUserName(state, user) {
@@ -70,8 +71,8 @@ const store = createStore({
             commit('setErrorMessage', e.message);
             alert(e.message);
         }
-      }
-  },
+      },
+  }
 });
 
 export default store;
