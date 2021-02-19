@@ -13,13 +13,15 @@ const store = createStore({
       userName: '',
       updateUserName: '',
       userLoginInfomation: '',
-      errorMessage: ''
+      myBalance: '1000',
+      errorMessage: '',
     };
   },
   getters: {
     getUserName: state => state.userName,
     updateUserName: state => state.updateUserName,
-    getUser: state => state.users
+    getUser: state => state.users,
+    myBalance: state => state.myBalance
   },
   mutations: {
     setUserName(state, user) {
@@ -34,6 +36,10 @@ const store = createStore({
     setErrorMessage(state, errorMessage) {
       state.errorMessage = errorMessage;
     },
+    updateBalance(state, { user, money }) {
+      state.users[user.id].wallet =+ state.users[user.id].wallet + parseInt(money);
+      state.myBalance = state.myBalance - money;
+    }
   },
   actions: {
     async signUp({ commit }, userInfomation) {
@@ -72,6 +78,9 @@ const store = createStore({
             alert(e.message);
         }
       },
+      updateBalance({ commit }, { user, money }) {
+        commit('updateBalance', { user, money });
+      }
   }
 });
 

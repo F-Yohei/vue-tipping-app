@@ -6,7 +6,7 @@
       </div>
 
       <div>
-        <span>残高 : 1000</span>
+        <span>残高 : {{ myBalance }}円</span>
         <button @click="logOut">ログアウト</button>
       </div>
     </div>
@@ -20,16 +20,16 @@
         <li v-for="user in users" :key="user.id">
           <span>{{ user.userName }}</span>
           <form>
-            <button type="button" @click="selectUser(user)">Wallerを見る</button>
-            <button type="button">送る</button>
+            <button type="button" @click="selectUser(user)">Walletを見る</button>
+            <button type="button" @click="usersSendMoney(user)">送る</button>
           </form>
         </li>
       </ul>
     </div>
 
-    <div class="overlay" v-show="showModalWallet" @click="closeModal">
+    <div class="overlay" v-show="showWalletModal">
       <transition name="modal">
-        <div v-show="showModalWallet" class="content">
+        <div v-show="showWalletModal" class="content">
           <p>{{ selectedUser.userName }}さんの残高</p>
           <p>{{ selectedUser.wallet }}円</p>
           <p>
@@ -39,15 +39,17 @@
       </transition>
     </div>
 
-    <div class="overlay" v-if="showModal">
-      <div class="content">
-        <p>あなたの残高：500</p>
-        <p>送る金額</p>
-        <input type="text" class />
-        <p>
-          <button class="close-button">Close</button>
-        </p>
-      </div>
+    <div class="overlay" v-show="showSendingMoneyModal">
+      <transition name="modal">
+        <div class="content" v-show="showSendingMoneyModal">
+          <p>あなたの残高：{{ myBalance }}円</p>
+          <p>送る金額</p>
+          <input type="number" v-model="moneyTransfer" />
+          <p>
+            <button class="close-button" @click="sendMoney">送信</button>
+          </p>
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -57,7 +59,9 @@ export default {
   data() {
     return {
       selectedUser: '',
-      showModalWallet: false
+      moneyTransfer: '',
+      showWalletModal: false,
+      showSendingMoneyModal: false
     };
   },
   computed: {
@@ -66,23 +70,35 @@ export default {
     },
     users() {
       return this.$store.getters.getUser;
+    },
+    myBalance() {
+      return this.$store.getters.myBalance;
     }
   },
   // リロードしてもユーザー名が消えないようにする処理
   created() {
-    this.$store.dispatch('updateUserName');
+    this.$store.dispatch("updateUserName");
   },
   methods: {
     async logOut() {
-      await this.$store.dispatch('logOut');
-      this.$router.push('/');
+      await this.$store.dispatch("logOut");
+      this.$router.push("/");
     },
     selectUser(user) {
       this.selectedUser = user;
-      this.showModalWallet = true;
+      this.showWalletModal = true;
+    },
+    usersSendMoney(user) {
+      this.selectedUser = user;
+      this.showSendingMoneyModal = true;
     },
     closeModal() {
-      this.showModalWallet = false;
+      this.showWalletModal = false;
+    },
+    sendMoney() {
+      this.$store.dispatch('updateBalance', {user: this.selectedUser, money: this.moneyTransfer})
+      this.showSendingMoneyModal = false;
+      this.moneyTransfer = '';
     }
   }
 };
