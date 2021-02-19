@@ -2,7 +2,7 @@
   <div>
     <div class="login-message-area">
       <div>
-        <span>{{ updateUserName }}さんようこそ！！</span>
+        <span>{{ userName }}さんようこそ！！</span>
       </div>
 
       <div>
@@ -61,7 +61,7 @@ export default {
     };
   },
   computed: {
-    updateUserName() {
+    userName() {
       return this.$store.getters.updateUserName;
     },
     users() {
@@ -80,7 +80,6 @@ export default {
     selectUser(user) {
       this.selectedUser = user;
       this.showModalWallet = true;
-      console.log(this.selectedUser);
     },
     closeModal() {
       this.showModalWallet = false;
