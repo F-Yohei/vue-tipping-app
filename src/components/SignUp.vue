@@ -37,7 +37,6 @@ export default {
     async signUp() {
       await this.$store.dispatch('signUp', { username:this.username, email:this.email, password:this.password })
       this.$router.push('/home');
-
     }
   }
 };

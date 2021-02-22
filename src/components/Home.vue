@@ -6,7 +6,7 @@
       </div>
 
       <div>
-        <span>残高 : {{ myBalance }}円</span>
+        <span>残高 : {{ myWallet }}円</span>
         <button @click="logOut">ログアウト</button>
       </div>
     </div>
@@ -42,11 +42,12 @@
     <div class="overlay" v-show="showSendingMoneyModal">
       <transition name="modal">
         <div class="content" v-show="showSendingMoneyModal">
-          <p>あなたの残高：{{ myBalance }}円</p>
+          <p>あなたの残高：{{ myWallet }}円</p>
           <p>送る金額</p>
           <input type="number" v-model="moneyTransfer" />
           <p>
             <button class="close-button" @click="sendMoney">送信</button>
+            <button class="close-button cancel-button" @click="sendMoney">キャンセル</button>
           </p>
         </div>
       </transition>
@@ -55,34 +56,37 @@
 </template>
 
 <script>
+
 export default {
   data() {
     return {
       selectedUser: '',
       moneyTransfer: '',
       showWalletModal: false,
-      showSendingMoneyModal: false
+      showSendingMoneyModal: false,
     };
   },
   computed: {
+    myWallet() {
+      return this.$store.getters.getMyWallet;
+    },
     userName() {
       return this.$store.getters.updateUserName;
     },
     users() {
       return this.$store.getters.getUser;
     },
-    myBalance() {
-      return this.$store.getters.myBalance;
-    }
   },
   // リロードしてもユーザー名が消えないようにする処理
   created() {
-    this.$store.dispatch("updateUserName");
+    this.$store.dispatch('getMyWallet');
+    this.$store.dispatch('updateUserName');
+    this.$store.dispatch('getUsers');
   },
   methods: {
     async logOut() {
-      await this.$store.dispatch("logOut");
-      this.$router.push("/");
+      await this.$store.dispatch('logOut');
+      this.$router.push('/');
     },
     selectUser(user) {
       this.selectedUser = user;
@@ -94,12 +98,13 @@ export default {
     },
     closeModal() {
       this.showWalletModal = false;
+      this.showSendingMoneyModal = false;
     },
     sendMoney() {
       this.$store.dispatch('updateBalance', {user: this.selectedUser, money: this.moneyTransfer})
       this.showSendingMoneyModal = false;
       this.moneyTransfer = '';
-    }
+    },
   }
 };
 </script>
@@ -179,6 +184,10 @@ export default {
   border: none;
   border-radius: 3px;
   cursor: pointer;
+}
+
+.cancel-button {
+  margin-left: 10px;
 }
 
 .modal-enter-from,

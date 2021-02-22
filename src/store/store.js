@@ -4,24 +4,19 @@ import firebase from 'firebase';
 const store = createStore({
   state() {
     return {
-      users:[
-        {id: 0, userName: 'test1', wallet: 500},
-        {id: 1, userName: 'test2', wallet: 1000},
-        {id: 2, userName: 'test3', wallet: 1500},
-        {id: 3, userName: 'test4', wallet: 2000},
-      ],
+      users: [],
+      myWallet: '',
       userName: '',
       updateUserName: '',
       userLoginInfomation: '',
-      myBalance: '1000',
       errorMessage: '',
     };
   },
   getters: {
+    getMyWallet: state => state.myWallet.wallet,
     getUserName: state => state.userName,
     updateUserName: state => state.updateUserName,
     getUser: state => state.users,
-    myBalance: state => state.myBalance
   },
   mutations: {
     setUserName(state, user) {
@@ -30,21 +25,48 @@ const store = createStore({
     updateUserName(state, updateUserName) {
       state.updateUserName = updateUserName;
     },
+    getMyWallet(state, doc) {
+      state.myWallet = doc.data();
+    },
+    async getUsers(state, snapshot) {
+      await snapshot.forEach((doc) => {
+        state.users.push(doc.data());
+      });
+    },
     userLoginInfomation(state, userLoginInfomation) {
-        state.userLoginInfomation = userLoginInfomation
+      state.userLoginInfomation = userLoginInfomation;
     },
     setErrorMessage(state, errorMessage) {
       state.errorMessage = errorMessage;
     },
-    updateBalance(state, { user, money }) {
-      state.users[user.id].wallet =+ state.users[user.id].wallet + parseInt(money);
-      state.myBalance = state.myBalance - money;
-    }
+    async updateBalance(state, { user, money }) {
+      const db = firebase.firestore();
+
+      await db.runTransaction(async t => {
+        //送金される側の処理
+        await t.update(db.collection('users').doc(user.docId), {
+          wallet: state.users[user.id].wallet + parseInt(money),
+        });
+        //送金する側の処理
+        await t.update(db.collection('myData').doc('zJIpEBLTneFRKT0tBgDd'), {
+          wallet: state.myWallet.wallet - money,
+        });
+      });
+      //state.{users,myWallet}の値を更新
+      state.users[user.id].wallet =
+        +state.users[user.id].wallet + parseInt(money);
+      state.myWallet.wallet = state.myWallet.wallet - money;
+    },
   },
   actions: {
     async signUp({ commit }, userInfomation) {
       try {
-        await firebase.auth().createUserWithEmailAndPassword(userInfomation.email,userInfomation.password);
+        await firebase
+          .auth()
+          .createUserWithEmailAndPassword(
+            userInfomation.email,
+            userInfomation.password
+          );
         const user = firebase.auth().currentUser;
         await user.updateProfile({
           displayName: userInfomation.username,
@@ -54,6 +76,33 @@ const store = createStore({
         alert(e.message);
       }
     },
+    //ログイン処理
+    async login({ commit }, userInfomation) {
+      commit('userLoginInfomation', userInfomation);
+      try {
+        await firebase
+          .auth()
+          .signInWithEmailAndPassword(
+            userInfomation.email,
+            userInfomation.password
+          );
+      } catch (e) {
+        commit('setErrorMessage', e.message);
+        alert(e.message);
+      }
+    },
+    //ログアウト処理
+    async logOut({ commit }) {
+      try {
+        await firebase.auth().signOut();
+      } catch (e) {
+        commit('setErrorMessage', e.message);
+        alert(e.message);
+      }
+    },
+    updateBalance({ commit }, { user, money }) {
+      commit('updateBalance', { user, money });
+    },
     updateUserName({ commit }) {
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
@@ -61,27 +110,25 @@ const store = createStore({
         }
       });
     },
-    async login({ commit }, userInfomation) {
-        commit('userLoginInfomation', userInfomation);
-        try {
-            await firebase.auth().signInWithEmailAndPassword(userInfomation.email,userInfomation.password);
-      } catch (e) {
-            commit('setErrorMessage', e.message);
-            alert(e.message);
-      }
+    //firestoreから自身の残高情報を取得
+    async getMyWallet({ commit }) {
+      const db = firebase.firestore();
+      const doc = await db
+        .collection('myData')
+        .doc('zJIpEBLTneFRKT0tBgDd')
+        .get();
+      commit('getMyWallet', doc);
     },
-    async logOut({ commit }) {
-        try {
-            await firebase.auth().signOut();
-        } catch(e) {
-            commit('setErrorMessage', e.message);
-            alert(e.message);
-        }
-      },
-      updateBalance({ commit }, { user, money }) {
-        commit('updateBalance', { user, money });
-      }
-  }
+    //firestoreからユーザー情報を取得
+    async getUsers({ commit }) {
+      const db = firebase.firestore();
+      const snapshot = await db
+        .collection('users')
+        .orderBy('id')
+        .get();
+      commit('getUsers', snapshot);
+    },
+  },
 });
 
 export default store;
