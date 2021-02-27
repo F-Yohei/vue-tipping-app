@@ -13,7 +13,7 @@ const store = createStore({
     };
   },
   getters: {
-    getMyWallet: state => state.myWallet.wallet,
+    getMyWallet: state => state.myWallet.myWallet,
     getUserName: state => state.userName,
     updateUserName: state => state.updateUserName,
     getUser: state => state.users,
@@ -27,8 +27,10 @@ const store = createStore({
     },
     getMyWallet(state, doc) {
       state.myWallet = doc.data();
+      console.log(doc.data())
     },
     async getUsers(state, snapshot) {
+      await state.users.splice(0);
       await snapshot.forEach((doc) => {
         state.users.push(doc.data());
       });
@@ -43,18 +45,18 @@ const store = createStore({
       const db = firebase.firestore();
 
       await db.runTransaction(async t => {
+        const user = firebase.auth().currentUser;
         //送金される側の処理
         await t.update(db.collection('users').doc(user.docId), {
           wallet: state.users[user.id].wallet + parseInt(money),
         });
         //送金する側の処理
-        await t.update(db.collection('myData').doc('zJIpEBLTneFRKT0tBgDd'), {
+        await t.update(db.collection('myData').doc('H6cABQw9IDXukCpCtuwxpppFvgx1'), {
           wallet: state.myWallet.wallet - money,
         });
       });
       //state.{users,myWallet}の値を更新
-      state.users[user.id].wallet =
-        +state.users[user.id].wallet + parseInt(money);
+      state.users[user.id].wallet =+ state.users[user.id].wallet + parseInt(money);
       state.myWallet.wallet = state.myWallet.wallet - money;
     },
   },
@@ -71,7 +73,7 @@ const store = createStore({
         await user.updateProfile({
           displayName: userInfomation.username,
         });
-        commit('setUserName', user);
+        await commit('setUserName', user);
       } catch (e) {
         alert(e.message);
       }
@@ -111,11 +113,11 @@ const store = createStore({
       });
     },
     //firestoreから自身の残高情報を取得
-    async getMyWallet({ commit }) {
+    async getMyWallet({ commit }, uid) {
       const db = firebase.firestore();
       const doc = await db
         .collection('myData')
-        .doc('zJIpEBLTneFRKT0tBgDd')
+        .doc(uid)
         .get();
       commit('getMyWallet', doc);
     },

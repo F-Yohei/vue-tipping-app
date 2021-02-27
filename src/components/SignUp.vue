@@ -25,17 +25,28 @@
 </template>
 
 <script>
+import firebase from 'firebase';
+
 export default {
   data() {
     return {
         username: '',
         email: '',
-        password: ''
+        password: '',
     };
   },
   methods: {
     async signUp() {
-      await this.$store.dispatch('signUp', { username:this.username, email:this.email, password:this.password })
+      await this.$store.dispatch('signUp', { username:this.username, email:this.email, password:this.password });
+      const db = await firebase.firestore();
+      const user = await firebase.auth().currentUser;
+        await db.collection('myData').doc(user.uid).set({
+          uid: user.uid,
+          userName: user.displayName,
+          email: user.email,
+          myWallet: 500
+        });
+      await this.$store.dispatch('getMyWallet', user.uid);
       this.$router.push('/home');
     }
   }
@@ -52,12 +63,10 @@ ul > li {
   width: 20%;
   margin: 0 auto;
 }
-
 label {
   width: 110px;
   float: left;
 }
-
 button {
   padding: 10px 20px;
   color: #0596fc;
@@ -66,12 +75,10 @@ button {
   border-radius: 4px;
   transition: 0.2s;
 }
-
 button:hover {
   color: #fff;
   background-color: #0596fc;
 }
-
 a {
   text-decoration: none;
   color: #0596fc;

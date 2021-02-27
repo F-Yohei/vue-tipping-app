@@ -56,7 +56,7 @@
 </template>
 
 <script>
-
+import firebase from 'firebase';
 export default {
   data() {
     return {
@@ -79,9 +79,10 @@ export default {
   },
   // リロードしてもユーザー名が消えないようにする処理
   created() {
-    this.$store.dispatch('getMyWallet');
+    // this.$store.dispatch('getMyWallet');
     this.$store.dispatch('updateUserName');
     this.$store.dispatch('getUsers');
+    this.getMyWallet();
   },
   methods: {
     async logOut() {
@@ -105,6 +106,10 @@ export default {
       this.showSendingMoneyModal = false;
       this.moneyTransfer = '';
     },
+    async getMyWallet() {
+      const user = await firebase.auth().currentUser;
+        this.$store.dispatch('getMyWallet', user.uid);
+    }
   }
 };
 </script>
@@ -116,7 +121,6 @@ export default {
   display: flex;
   justify-content: space-between;
 }
-
 .login-message-area > div > button {
   margin-left: 10px;
   padding: 5px;
@@ -125,27 +129,22 @@ export default {
   border-radius: 3px;
   border: #0596fc;
 }
-
 .user-list-wrapper {
   width: 35%;
   margin: 0 auto;
 }
-
 .user-list-wrapper > h4 {
   text-align: left;
 }
-
 .user-list {
   list-style: none;
   padding: 0;
 }
-
 .user-list > li {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
 }
-
 .user-list > li > form > button {
   margin-right: 10px;
   color: #fff;
@@ -154,7 +153,6 @@ export default {
   background: #02b5b3;
   padding: 5px 10px;
 }
-
 .overlay {
   z-index: 1;
   position: fixed;
@@ -167,7 +165,6 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
 .content {
   z-index: 2;
   width: 20%;
@@ -176,7 +173,6 @@ export default {
   position: absolute;
   top: 220px;
 }
-
 .close-button {
   padding: 5px 10px;
   color: #fff;
@@ -185,27 +181,22 @@ export default {
   border-radius: 3px;
   cursor: pointer;
 }
-
 .cancel-button {
   margin-left: 10px;
 }
-
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
   top: 200px;
 }
-
 .modal-enter-active,
 .modal-leave-active {
   transition: 0.3s;
 }
-
 .modal-enter-to {
   opacity: 1;
   top: 220px;
 }
-
 .modal-leave-from {
   opacity: 1;
   top: 220px;

@@ -31,7 +31,8 @@
     },
     methods: {
       async userLogin() {
-        await this.$store.dispatch('login', { email:this.email, password:this.password })
+        await this.$store.dispatch('login', { email:this.email, password:this.password });
+        await this.$store.dispatch('getUsers');
         this.$router.push('/home');
       }
     }
