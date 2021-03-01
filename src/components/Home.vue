@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import firebase from 'firebase';
+
 export default {
   data() {
     return {
@@ -79,15 +79,16 @@ export default {
   },
   // リロードしてもユーザー名が消えないようにする処理
   created() {
-    // this.$store.dispatch('getMyWallet');
+    this.$store.dispatch('getMyWallet');
     this.$store.dispatch('updateUserName');
     this.$store.dispatch('getUsers');
-    this.getMyWallet();
   },
   methods: {
-    async logOut() {
-      await this.$store.dispatch('logOut');
-      this.$router.push('/');
+    logOut() {
+      this.$store.dispatch('logOut');
+      setTimeout(() => {
+        this.$router.push('/');
+        },3000);
     },
     selectUser(user) {
       this.selectedUser = user;
@@ -106,10 +107,6 @@ export default {
       this.showSendingMoneyModal = false;
       this.moneyTransfer = '';
     },
-    async getMyWallet() {
-      const user = await firebase.auth().currentUser;
-        this.$store.dispatch('getMyWallet', user.uid);
-    }
   }
 };
 </script>

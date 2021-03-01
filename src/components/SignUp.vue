@@ -5,7 +5,7 @@
       <ul>
         <li class="user-name">
           <label for="user-name">ユーザー名</label>
-          <input type="text" id="user-name" placeholder="UserName" v-model="username" />
+          <input type="text" id="user-name" placeholder="UserName" v-model="userName" />
         </li>
         <li class="email">
           <label for="email">メールアドレス</label>
@@ -30,21 +30,22 @@ import firebase from 'firebase';
 export default {
   data() {
     return {
-        username: '',
+        userName: '',
         email: '',
         password: '',
     };
   },
   methods: {
     async signUp() {
-      await this.$store.dispatch('signUp', { username:this.username, email:this.email, password:this.password });
-      const db = await firebase.firestore();
+      await this.$store.dispatch('signUp', { userName:this.userName, email:this.email, password:this.password });
       const user = await firebase.auth().currentUser;
+      const db = await firebase.firestore();
         await db.collection('myData').doc(user.uid).set({
           uid: user.uid,
           userName: user.displayName,
           email: user.email,
-          myWallet: 500
+          myWallet: 500,
+          country: 'Japan'
         });
       await this.$store.dispatch('getMyWallet', user.uid);
       this.$router.push('/home');

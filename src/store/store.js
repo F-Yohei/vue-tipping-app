@@ -27,7 +27,7 @@ const store = createStore({
     },
     getMyWallet(state, doc) {
       state.myWallet = doc.data();
-      console.log(doc.data())
+
     },
     async getUsers(state, snapshot) {
       await state.users.splice(0);
@@ -71,7 +71,7 @@ const store = createStore({
           );
         const user = firebase.auth().currentUser;
         await user.updateProfile({
-          displayName: userInfomation.username,
+          displayName: userInfomation.userName,
         });
         await commit('setUserName', user);
       } catch (e) {
@@ -113,13 +113,14 @@ const store = createStore({
       });
     },
     //firestoreから自身の残高情報を取得
-    async getMyWallet({ commit }, uid) {
-      const db = firebase.firestore();
+    async getMyWallet({ commit }) {
+      const user = await firebase.auth().currentUser
+      const db = await firebase.firestore();
       const doc = await db
         .collection('myData')
-        .doc(uid)
+        .doc(user.uid)
         .get();
-      commit('getMyWallet', doc);
+      await commit('getMyWallet', doc);
     },
     //firestoreからユーザー情報を取得
     async getUsers({ commit }) {
