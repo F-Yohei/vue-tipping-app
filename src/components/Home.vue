@@ -68,7 +68,7 @@ export default {
   },
   computed: {
     myWallet() {
-      return this.$store.getters.getMyWallet;
+      return this.$store.getters.getLoginUser;
     },
     userName() {
       return this.$store.getters.updateUserName;
@@ -79,21 +79,20 @@ export default {
   },
   // リロードしてもユーザー名が消えないようにする処理
   created() {
-    this.$store.dispatch('getMyWallet');
+    this.$store.dispatch('getLoginUser');
     this.$store.dispatch('updateUserName');
     this.$store.dispatch('getUsers');
   },
   methods: {
     logOut() {
       this.$store.dispatch('logOut');
-      setTimeout(() => {
         this.$router.push('/');
-        },3000);
     },
     selectUser(user) {
       this.selectedUser = user;
       this.showWalletModal = true;
     },
+    //送るボタンをクリックされたユーザー情報をselectedUserに格納する為の関数
     usersSendMoney(user) {
       this.selectedUser = user;
       this.showSendingMoneyModal = true;
@@ -102,11 +101,16 @@ export default {
       this.showWalletModal = false;
       this.showSendingMoneyModal = false;
     },
-    sendMoney() {
-      this.$store.dispatch('updateBalance', {user: this.selectedUser, money: this.moneyTransfer})
-      this.showSendingMoneyModal = false;
-      this.moneyTransfer = '';
-    },
+    //入力された金額分だけ投げ銭する関数
+    async sendMoney() {
+      if(this.moneyTransfer === '') {
+        return
+      } else {
+        await this.$store.dispatch('updateBalance', {user: this.selectedUser, money: this.moneyTransfer})
+        this.showSendingMoneyModal = false;
+        this.moneyTransfer = '';
+      }
+    }
   }
 };
 </script>

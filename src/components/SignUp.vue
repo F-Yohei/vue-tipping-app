@@ -26,7 +26,6 @@
 
 <script>
 import firebase from 'firebase';
-
 export default {
   data() {
     return {
@@ -44,10 +43,9 @@ export default {
           uid: user.uid,
           userName: user.displayName,
           email: user.email,
-          myWallet: 500,
-          country: 'Japan'
+          myWallet: 5000,
         });
-      await this.$store.dispatch('getMyWallet', user.uid);
+      await this.$store.dispatch('getLoginUser', user.uid);
       this.$router.push('/home');
     }
   }
