@@ -29,9 +29,9 @@ const store = createStore({
       state.loginUser = doc.data();
 
     },
-    async getUsers(state, snapshot) {
-      await state.users.splice(0);
-      await snapshot.forEach((doc) => {
+    getUsers(state, snapshot) {
+       state.users.splice(0);
+       snapshot.forEach((doc) => {
         state.users.push(doc.data());
       });
     },
@@ -40,23 +40,6 @@ const store = createStore({
     },
     setErrorMessage(state, errorMessage) {
       state.errorMessage = errorMessage;
-    },
-    updateBalance(state, { user, money }) {
-      const db = firebase.firestore();
-      db.runTransaction(async t => {
-        const loginUser = firebase.auth().currentUser;
-        //送金される側の処理
-        t.update(db.collection('users').doc(user.docId), {
-          wallet: state.users[user.id].wallet + parseInt(money),
-        });
-        //送金する側の処理
-        t.update(db.collection('myData').doc(loginUser.uid), {
-            myWallet: state.loginUser.myWallet - money,
-          });
-        //state.{users,myWallet}の値を更新
-        state.users[user.id].wallet = state.users[user.id].wallet + parseInt(money);
-        state.loginUser.myWallet = state.loginUser.myWallet - money;
-        });
     },
   },
   actions: {
@@ -101,9 +84,23 @@ const store = createStore({
         alert(e.message);
       }
     },
-    async updateBalance({ commit }, { user, money }) {
-      console.log(user);
-      await commit('updateBalance', { user, money });
+    //残高を更新する為の処理
+    async updateBalance({ state }, { user, money }) {
+      const db = firebase.firestore();
+      db.runTransaction(async t => {
+        const loginUser = firebase.auth().currentUser;
+        //送金される側の処理
+        t.update(db.collection('users').doc(user.docId), {
+          wallet: state.users[user.id].wallet + parseInt(money),
+        });
+        //送金する側の処理
+        t.update(db.collection('myData').doc(loginUser.uid), {
+            myWallet: state.loginUser.myWallet - money,
+          });
+        //state.{users,myWallet}の値を更新
+        state.users[user.id].wallet = state.users[user.id].wallet + parseInt(money);
+        state.loginUser.myWallet = state.loginUser.myWallet - money;
+        });
     },
     updateUserName({ commit }) {
       firebase.auth().onAuthStateChanged((user) => {
@@ -124,7 +121,7 @@ const store = createStore({
     },
     //firestoreからユーザー情報を取得
     async getUsers({ commit }) {
-      const db = firebase.firestore();
+      const db = await firebase.firestore();
       const snapshot = await db
         .collection('users')
         .orderBy('id')
