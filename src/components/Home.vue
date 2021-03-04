@@ -56,7 +56,6 @@
 </template>
 
 <script>
-
 export default {
   data() {
     return {
@@ -103,9 +102,10 @@ export default {
         return
       } else {
         await this.$store.dispatch('updateBalance', {user: this.selectedUser, money: this.moneyTransfer});
-        await this.$store.dispatch('getUsers')
+        this.$store.dispatch('getUsers')
         this.showSendingMoneyModal = false;
         this.moneyTransfer = '';
+        this.$router.go({path: '/home', force: true})
       }
     }
   }
