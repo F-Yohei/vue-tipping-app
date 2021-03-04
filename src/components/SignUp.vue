@@ -39,11 +39,11 @@ export default {
       await this.$store.dispatch('signUp', { userName:this.userName, email:this.email, password:this.password });
       const user = await firebase.auth().currentUser;
       const db = await firebase.firestore();
-        await db.collection('myData').doc(user.uid).set({
-          uid: user.uid,
+        await db.collection('users').doc(user.uid).set({
+          docId: user.uid,
           userName: user.displayName,
-          email: user.email,
-          myWallet: 5000,
+          id:'6',
+          wallet: 7000,
         });
       await this.$store.dispatch('getLoginUser', user.uid);
       this.$router.push('/home');

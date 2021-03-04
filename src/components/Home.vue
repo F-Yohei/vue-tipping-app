@@ -2,11 +2,11 @@
   <div>
     <div class="login-message-area">
       <div>
-        <span>{{ userName }}さんようこそ！！</span>
+        <span>{{ loginUser.userName }}さんようこそ！！</span>
       </div>
 
       <div>
-        <span>残高 : {{ myWallet }}円</span>
+        <span>残高 : {{ loginUser.wallet }}円</span>
         <button @click="logOut">ログアウト</button>
       </div>
     </div>
@@ -42,12 +42,12 @@
     <div class="overlay" v-show="showSendingMoneyModal">
       <transition name="modal">
         <div class="content" v-show="showSendingMoneyModal">
-          <p>あなたの残高：{{ myWallet }}円</p>
+          <p>あなたの残高：{{ loginUser.wallet }}円</p>
           <p>送る金額</p>
           <input type="number" v-model="moneyTransfer" />
           <p>
             <button class="close-button" @click="sendMoney">送信</button>
-            <button class="close-button cancel-button" @click="sendMoney">キャンセル</button>
+            <button class="close-button cancel-button" @click="closeModal">キャンセル</button>
           </p>
         </div>
       </transition>
@@ -67,20 +67,16 @@ export default {
     };
   },
   computed: {
-    myWallet() {
+    loginUser() {
       return this.$store.getters.getLoginUser;
     },
-    userName() {
-      return this.$store.getters.updateUserName;
-    },
     users() {
-      return this.$store.getters.getUser;
+      return this.$store.getters.getUsers;
     },
   },
   // リロードしてもユーザー名が消えないようにする処理
   created() {
     this.$store.dispatch('getLoginUser');
-    this.$store.dispatch('updateUserName');
     this.$store.dispatch('getUsers');
   },
   methods: {
@@ -106,7 +102,8 @@ export default {
       if(this.moneyTransfer === '') {
         return
       } else {
-        await this.$store.dispatch('updateBalance', {user: this.selectedUser, money: this.moneyTransfer})
+        await this.$store.dispatch('updateBalance', {user: this.selectedUser, money: this.moneyTransfer});
+        await this.$store.dispatch('getUsers')
         this.showSendingMoneyModal = false;
         this.moneyTransfer = '';
       }

@@ -7,23 +7,18 @@ const store = createStore({
       users: [],
       loginUser: '',
       userName: '',
-      updateUserName: '',
       userLoginInfomation: '',
       errorMessage: '',
     };
   },
   getters: {
-    getLoginUser: state => state.loginUser.myWallet,
+    getLoginUser: state => state.loginUser,
     getUserName: state => state.userName,
-    updateUserName: state => state.updateUserName,
-    getUser: state => state.users,
+    getUsers: state => state.users,
   },
   mutations: {
     setUserName(state, user) {
       state.userName = user.displayName;
-    },
-    updateUserName(state, updateUserName) {
-      state.updateUserName = updateUserName;
     },
     getLoginUser(state, doc) {
       state.loginUser = doc.data();
@@ -43,6 +38,7 @@ const store = createStore({
     },
   },
   actions: {
+    //Firestoreに新規ユーザーの情報を登録
     async signUp({ commit }, userInfomation) {
       try {
         await firebase
@@ -59,6 +55,26 @@ const store = createStore({
       } catch (e) {
         alert(e.message);
       }
+    },
+    //firestoreからログイン中のユーザー情報を取得
+    async getLoginUser({ commit }) {
+      const user = await firebase.auth().currentUser
+      const db = await firebase.firestore();
+      const doc = await db
+        .collection('users')
+        .doc(user.uid)
+        .get();
+      await commit('getLoginUser', doc);
+    },
+    //firestoreからログインユーザー以外のユーザー情報を取得
+    async getUsers({ commit }) {
+      const user = await firebase.auth().currentUser
+      const db = await firebase.firestore();
+      const snapshot = await db
+        .collection('users')
+        .where('docId', '!=',user.uid)
+        .get()
+      commit('getUsers', snapshot);
     },
     //ログイン処理
     async login({ commit }, userInfomation) {
@@ -86,47 +102,20 @@ const store = createStore({
     },
     //残高を更新する為の処理
     async updateBalance({ state }, { user, money }) {
-      const db = firebase.firestore();
+      const db = await firebase.firestore();
       db.runTransaction(async t => {
-        const loginUser = firebase.auth().currentUser;
+        const loginUser = await firebase.auth().currentUser;
         //送金される側の処理
-        t.update(db.collection('users').doc(user.docId), {
-          wallet: state.users[user.id].wallet + parseInt(money),
+        await t.update(db.collection('users').doc(user.docId), {
+          wallet: user.wallet + parseInt(money),
         });
         //送金する側の処理
-        t.update(db.collection('myData').doc(loginUser.uid), {
-            myWallet: state.loginUser.myWallet - money,
-          });
-        //state.{users,myWallet}の値を更新
-        state.users[user.id].wallet = state.users[user.id].wallet + parseInt(money);
-        state.loginUser.myWallet = state.loginUser.myWallet - money;
+        await t.update(db.collection('users').doc(loginUser.uid), {
+          wallet: state.loginUser.wallet - money,
         });
-    },
-    updateUserName({ commit }) {
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          commit('updateUserName', user.displayName);
-        }
+        // state.loginUserの値を更新
+        state.loginUser.wallet = state.loginUser.wallet - money;
       });
-    },
-    //firestoreから自身の残高情報を取得
-    async getLoginUser({ commit }) {
-      const user = await firebase.auth().currentUser
-      const db = await firebase.firestore();
-      const doc = await db
-        .collection('myData')
-        .doc(user.uid)
-        .get();
-      await commit('getLoginUser', doc);
-    },
-    //firestoreからユーザー情報を取得
-    async getUsers({ commit }) {
-      const db = await firebase.firestore();
-      const snapshot = await db
-        .collection('users')
-        .orderBy('id')
-        .get();
-      commit('getUsers', snapshot);
     },
   },
 });
