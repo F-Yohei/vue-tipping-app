@@ -106,11 +106,11 @@ const store = createStore({
       db.runTransaction(async t => {
         const loginUser = await firebase.auth().currentUser;
         //送金される側の処理
-        await t.update(db.collection('users').doc(user.docId), {
+        t.update(db.collection('users').doc(user.docId), {
           wallet: user.wallet + parseInt(money),
         });
         //送金する側の処理
-        await t.update(db.collection('users').doc(loginUser.uid), {
+        t.update(db.collection('users').doc(loginUser.uid), {
           wallet: state.loginUser.wallet - money,
         });
         // state.loginUserの値を更新

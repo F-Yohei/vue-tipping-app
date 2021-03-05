@@ -17,11 +17,11 @@
       <h4>ユーザ名</h4>
 
       <ul class="user-list">
-        <li v-for="user in users" :key="user.id">
+        <li v-for="(user,index) in users" :key="index">
           <span>{{ user.userName }}</span>
           <form>
-            <button type="button" @click="selectUser(user)">Walletを見る</button>
-            <button type="button" @click="usersSendMoney(user)">送る</button>
+            <button type="button" @click="selectUser(user,index)">Walletを見る</button>
+            <button type="button" @click="usersSendMoney(user,index)">送る</button>
           </form>
         </li>
       </ul>
@@ -73,7 +73,6 @@ export default {
       return this.$store.getters.getUsers;
     },
   },
-  // リロードしてもユーザー名が消えないようにする処理
   created() {
     this.$store.dispatch('getLoginUser');
     this.$store.dispatch('getUsers');
@@ -83,6 +82,7 @@ export default {
       this.$store.dispatch('logOut');
         this.$router.push('/');
     },
+    //選択されたユーザーの情報をselectedUserプロパティに格納
     selectUser(user) {
       this.selectedUser = user;
       this.showWalletModal = true;
@@ -92,21 +92,19 @@ export default {
       this.selectedUser = user;
       this.showSendingMoneyModal = true;
     },
+    //モーダルを閉じる処理
     closeModal() {
       this.showWalletModal = false;
       this.showSendingMoneyModal = false;
     },
-    //入力された金額分だけ投げ銭する関数
+    //入力された金額分だけ投げ銭するし、その後画面をリロードする処理
     async sendMoney() {
-      if(this.moneyTransfer === '') {
-        return
-      } else {
-        await this.$store.dispatch('updateBalance', {user: this.selectedUser, money: this.moneyTransfer});
+      if(!this.moneyTransfer) return
+        this.$store.dispatch('updateBalance', {user: this.selectedUser, money: this.moneyTransfer});
         this.$store.dispatch('getUsers')
         this.showSendingMoneyModal = false;
         this.moneyTransfer = '';
         this.$router.go({path: '/home', force: true})
-      }
     }
   }
 };
